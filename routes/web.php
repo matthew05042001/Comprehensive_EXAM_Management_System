@@ -7,6 +7,7 @@ use App\Http\Controllers\ComprehensiveExamController;
 use App\Http\Controllers\CoordinatorAdviserController;
 use App\Http\Controllers\CoordinatorCompreExamController;
 use App\Http\Controllers\CoordinatorComprePaymentController;
+use App\Http\Controllers\CoordinatorCompreScheduleController;
 use App\Http\Controllers\CoordinatorDefenseController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DefenseRequestController;
@@ -160,7 +161,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('defense-requests.generate-docs');
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
     Route::patch('/admin/users/{user}/role', [\App\Http\Controllers\Admin\UserRoleController::class, 'update'])
         ->middleware('throttle:30,1')->name('admin.users.role.update');
 
@@ -322,6 +322,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('coordinator.compre-exam.index');
     Route::get('/coordinator/compre-payment', [CoordinatorComprePaymentController::class, 'index'])
         ->name('coordinator.compre-payment.index');
+    Route::get('/coordinator/compre-schedule', [CoordinatorCompreScheduleController::class, 'index'])
+        ->name('coordinator.compre-schedule.index');
+    Route::post('/coordinator/compre-schedule', [CoordinatorCompreScheduleController::class, 'store'])
+        ->name('coordinator.compre-schedule.store');
+    Route::delete('/coordinator/compre-schedule/{schedule}', [CoordinatorCompreScheduleController::class, 'destroy'])
+        ->name('coordinator.compre-schedule.destroy');
     Route::post('/coordinator/compre-payment/{id}/approve', [CoordinatorComprePaymentController::class, 'approve'])
         ->name('coordinator.compre-payment.approve');
     Route::post('/coordinator/compre-payment/{id}/reject', [CoordinatorComprePaymentController::class, 'reject'])

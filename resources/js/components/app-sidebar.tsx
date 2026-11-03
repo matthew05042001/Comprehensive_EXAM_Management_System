@@ -75,6 +75,7 @@ const coordinatorNavItems: MainNavItem[] = [
         subItems: [
             { title: 'Comprehensive Exams', href: '/coordinator/compre-exam' },
             { title: 'Payment Receipt', href: '/coordinator/compre-payment' },
+            { title: 'Schedule and Proctors', href: '/coordinator/compre-schedule' },
         ],
     },
     { title: 'Student Records', href: '/student-records', icon: Users },
@@ -93,6 +94,7 @@ const assistantNavItems: MainNavItem[] = [
         subItems: [
             { title: 'Comprehensive Exams', href: '/coordinator/compre-exam' },
             { title: 'Payment Receipt', href: '/coordinator/compre-payment' },
+            { title: 'Schedule and Proctors', href: '/coordinator/compre-schedule' },
         ],
     },
     { title: 'Honorarium Summary', href: '/honorarium-summary', icon: DollarSign },
@@ -108,6 +110,16 @@ const adviserNavItems: MainNavItem[] = [
 
 const deanNavItems: MainNavItem[] = [
     { title: 'Dashboard', href: '/dashboard', icon: LayoutGrid },
+    {
+        title: 'Applications',
+        href: '/coordinator/compre-exam',
+        icon: FileText,
+        subItems: [
+            { title: 'Comprehensive Exams', href: '/coordinator/compre-exam' },
+            { title: 'Payment Receipt', href: '/coordinator/compre-payment' },
+            { title: 'Schedule and Proctors', href: '/coordinator/compre-schedule' },
+        ],
+    },
     { title: 'Defense Requests', href: '/dean/defense-requests', icon: FileText },
     { title: 'Schedules', href: '/schedules', icon: CalendarFold },
     { title: 'Payment Rates', href: '/dean/payment-rates', icon: DollarSign },

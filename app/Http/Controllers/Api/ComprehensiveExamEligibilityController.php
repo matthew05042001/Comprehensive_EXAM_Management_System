@@ -38,6 +38,33 @@ class ComprehensiveExamEligibilityController extends Controller
 
         Log::info('Eligibility check started', ['user_id' => $user->id, 'user_email' => $user->email]);
 
+        if (app()->environment(['local', 'testing']) && $user->is_demo_account && $user->role === 'Student') {
+            return response()->json([
+                'eligible' => true,
+                'requirements' => [
+                    [
+                        'name' => 'Complete grades (registrar verified)',
+                        'completed' => true,
+                        'description' => 'Local demo student eligibility',
+                    ],
+                    [
+                        'name' => 'Complete documents submitted',
+                        'completed' => true,
+                        'description' => 'Local demo student eligibility',
+                    ],
+                    [
+                        'name' => 'No outstanding tuition balance',
+                        'completed' => true,
+                        'description' => 'Local demo student eligibility',
+                    ],
+                ],
+                'debug' => [
+                    'legacy_session_available' => false,
+                    'demo_account' => true,
+                ],
+            ]);
+        }
+
         try {
             // Get legacy session
             $legacySession = Cache::get('legacy_session_'.$user->id);

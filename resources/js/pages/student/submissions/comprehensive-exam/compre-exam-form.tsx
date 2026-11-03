@@ -25,7 +25,7 @@ export default function CompreExamForm({ open, onOpenChange, onFinish }: Props) 
     const { props } = usePage<SharedData>();
     const user = props?.auth?.user || {};
 
-    const { data, setData, post, processing, reset } = useForm<{
+    const { data, setData, post, processing, reset, errors, clearErrors } = useForm<{
         schoolYear: string;
         program: string;
         officeAddress: string;
@@ -80,12 +80,16 @@ export default function CompreExamForm({ open, onOpenChange, onFinish }: Props) 
     }
 
     function handleSubmit() {
+        clearErrors();
         post(route('comprehensive-exam.store'), {
             preserveScroll: true,
             preserveState: true, // keep modal state so we can show success panel
             onSuccess: () => {
                 setShowSuccessPanel(true); // show the success UI like Defense
                 onFinish?.();
+            },
+            onError: () => {
+                setShowSuccessPanel(false);
             },
         });
     }
@@ -450,6 +454,16 @@ export default function CompreExamForm({ open, onOpenChange, onFinish }: Props) 
                     </div>
                 ) : (
                     <div className="flex-1 overflow-auto px-2">
+                        {Object.keys(errors).length > 0 && (
+                            <div className="mb-4 rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-700" role="alert">
+                                <p className="font-semibold">The application could not be saved.</p>
+                                <ul className="mt-1 list-disc pl-5">
+                                    {Object.values(errors).map((error, index) => (
+                                        <li key={`${error}-${index}`}>{error}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
                         <Stepper
                             steps={steps}
                             currentStep={currentStep}

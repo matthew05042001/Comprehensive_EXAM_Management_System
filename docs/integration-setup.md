@@ -32,7 +32,7 @@ The Honorarium Payments page now records prepared, approved, disbursed and claim
 
 Verified locally: application creation, subject schedule storage, duplicate submission handling per school year, invalid time validation, and student-specific application display. Added missing exam subject schedule columns through a migration and made application+subjects save in one transaction. Only Student accounts can submit.
 
-Live eligibility still depends on the school portal session; demo accounts and current Google sign-in do not establish that session. Without it the eligibility API reports that verification is unavailable. The existing coordinator local-development eligibility bypass is separate from the student's check. Exam submission now enforces the existing eligibility result on the server; unverified eligibility blocks submission. This integration does not certify Registrar/Dean approval, results release, or proctor invitation workflows as complete.
+Live eligibility still depends on the school portal session for non-demo students; current Google sign-in does not establish that session. In local/testing environments, explicitly flagged demo student accounts are eligible for the demo workflow without a school portal session. Exam submission enforces the eligibility result on the server. This integration does not certify Registrar/Dean approval, results release, or proctor invitation workflows as complete.
 
 The inherited route audit still finds15 pre-existing route handlers that are absent. Their details are in `docs/diagram-audit-results.json`. They are not part of the newly integrated Finance endpoints.
 

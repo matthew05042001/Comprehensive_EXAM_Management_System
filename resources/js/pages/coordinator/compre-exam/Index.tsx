@@ -49,7 +49,6 @@ export default function CoordinatorCompreExamIndex() {
     }, [data, q]);
 
     const columns = { student: true, program: true, eligibility: true, applied: true, appStatus: true, actions: true };
-
     return (
         <AppLayout>
             <div className="px-7 pt-5 pb-6">

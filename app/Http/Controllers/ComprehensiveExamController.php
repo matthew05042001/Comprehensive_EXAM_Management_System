@@ -75,16 +75,16 @@ class ComprehensiveExamController extends Controller
     {
         abort_unless($request->user()?->role === 'Student', 403);
         $validated = $request->validate([
-            'schoolYear' => ['required', 'string', 'max:20'],
-            'program' => ['required', 'string', 'max:255'],
+            'schoolYear' => ['nullable', 'string', 'max:20'],
+            'program' => ['nullable', 'string', 'max:255'],
             'officeAddress' => ['nullable', 'string', 'max:255'],
-            'mobileNo' => ['required', 'string', 'max:50'],
+            'mobileNo' => ['nullable', 'string', 'max:50'],
             'telephoneNo' => ['nullable', 'string', 'max:50'],
-            'subjects' => ['required', 'array', 'min:1'],
-            'subjects.*.subject' => ['required', 'string', 'max:255'],
-            'subjects.*.date' => ['required', 'date'],
-            'subjects.*.startTime' => ['required', 'date_format:H:i'],
-            'subjects.*.endTime' => ['required', 'date_format:H:i', 'after:subjects.*.startTime'],
+            'subjects' => ['nullable', 'array'],
+            'subjects.*.subject' => ['nullable', 'string', 'max:255'],
+            'subjects.*.date' => ['nullable', 'date'],
+            'subjects.*.startTime' => ['nullable', 'date_format:H:i'],
+            'subjects.*.endTime' => ['nullable', 'date_format:H:i', 'after:subjects.*.startTime'],
         ]);
 
         $user = $request->user();
@@ -93,7 +93,8 @@ class ComprehensiveExamController extends Controller
             return back()->withErrors(['student_id' => 'Your account has no student ID associated.']);
         }
 
-        if (ExamApplication::where('student_id', $studentId)->where('school_year', $validated['schoolYear'])->exists()) {
+        if ($validated['schoolYear'] !== null
+            && ExamApplication::where('student_id', $studentId)->where('school_year', $validated['schoolYear'])->exists()) {
             return to_route('comprehensive-exam.index')->with('info', 'You already have an application for this school year.');
         }
         $eligibility = app(\App\Services\ComprehensiveEligibilityService::class)->check($request);
@@ -111,7 +112,7 @@ class ComprehensiveExamController extends Controller
                     'contact_number' => $validated['mobileNo'],
                     'telephone_number' => $validated['telephoneNo'] ?? null,
                     'office_address' => $validated['officeAddress'] ?? null,
-                    'program' => $validated['program'],
+                    'program' => $validated['program'] ?? '',
                 ]
             );
 
@@ -121,12 +122,12 @@ class ComprehensiveExamController extends Controller
                     ->with('info', 'You already have an application for this school year.');
             }
 
-            foreach ($validated['subjects'] as $s) {
+            foreach ($validated['subjects'] ?? [] as $s) {
                 $application->subjects()->create([
-                    'subject_name' => $s['subject'],
-                    'exam_date' => $s['date'],
-                    'start_time' => $s['startTime'],
-                    'end_time' => $s['endTime'],
+                    'subject_name' => $s['subject'] ?? null,
+                    'exam_date' => $s['date'] ?? null,
+                    'start_time' => $s['startTime'] ?? null,
+                    'end_time' => $s['endTime'] ?? null,
                 ]);
             }
 

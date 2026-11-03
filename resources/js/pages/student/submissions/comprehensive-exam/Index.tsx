@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
+import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
 import { CalendarX, GraduationCap, Info, Plus, RefreshCcw, ShieldAlert, ShieldCheck } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -19,13 +19,13 @@ type Subject = { subject: string; date: string; startTime: string; endTime: stri
 
 type ApplicationVM = {
     application_id: number;
-    school_year: string;
+    school_year: string | null;
     permit_status: string;
     final_approval_status: string;
     contact_number?: string | null;
     telephone_number?: string | null;
     office_address?: string | null;
-    program: string;
+    program: string | null;
     created_at?: string;
     subjects: Subject[];
     first_name: string;
@@ -35,7 +35,7 @@ type ApplicationVM = {
     student_id: string | number;
 };
 
-type PageProps = {
+type PageProps = Pick<SharedData, 'auth'> & {
     application?: ApplicationVM | null;
 };
 
@@ -146,8 +146,10 @@ export default function ComprehensiveExamIndex() {
     }, [fetchEligibility]);
 
     const canApply = useMemo(() => {
-        return !!(elig.examOpen && elig.gradesComplete && elig.documentsComplete && elig.noOutstandingBalance);
-    }, [elig]);
+        const isLocalDemoStudent = props.auth?.user?.role === 'Student' && props.auth?.user?.is_demo_account === true;
+
+        return isLocalDemoStudent || !!(elig.examOpen && elig.gradesComplete && elig.documentsComplete && elig.noOutstandingBalance);
+    }, [elig, props.auth?.user]);
 
     const examClosed = elig.examOpen === false; // NEW
     const hasPending = application ? application.final_approval_status?.toLowerCase() === 'pending' : false;

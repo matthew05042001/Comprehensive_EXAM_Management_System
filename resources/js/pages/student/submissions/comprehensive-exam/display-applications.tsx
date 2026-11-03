@@ -18,8 +18,8 @@ export type ExamApplicationFull = {
     first_name: string;
     middle_initial: string | null;
     last_name: string;
-    program: string;
-    school_year: string;
+    program?: string | null;
+    school_year?: string | null;
     office_address?: string | null;
     mobile_no?: string | null;
     telephone_no?: string | null;
@@ -116,8 +116,8 @@ export default function DisplayApplication({ application }: Props) {
 
                     {/* Badges */}
                     <div className="mt-2 flex flex-wrap gap-2">
-                        <Badge variant="secondary">{application.program}</Badge>
-                        <Badge variant="secondary">{application.school_year}</Badge>
+                        <Badge variant="secondary">{application.program || 'Program not provided'}</Badge>
+                        <Badge variant="secondary">{application.school_year || 'School year not provided'}</Badge>
                         {firstDate && <Badge variant="secondary">First Exam: {format(firstDate, 'PPP')}</Badge>}
                         {subjects.length > 0 && (
                             <Badge variant="secondary">

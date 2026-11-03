@@ -57,6 +57,7 @@ export interface User {
     school_id: string;
     program: string;
     email: string;
+    is_demo_account?: boolean;
     name?: string;
     display_name?: string;
     mobile_no?: string;

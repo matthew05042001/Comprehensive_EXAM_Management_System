@@ -62,6 +62,17 @@ php artisan storage:link
 npm.cmd run build
 ```
 
+To populate a repeatable comprehensive-exam workflow for all demo roles, run:
+
+```powershell
+php artisan demo:comprehensive-exam-data
+```
+
+This creates pending, approved, and rejected applications, scheduled exam subjects,
+adviser assignments, coordinator program visibility, and pending/approved exam payments.
+It only runs in local/testing environments and does not truncate existing data. The
+command also creates the three additional student logins shown in its output.
+
 Use the explicit program seeder shown above. The general `--seed` command invokes an older sample defense seeder and is not required for this setup. Do not use `migrate:fresh` against an existing database: it deletes tables.
 
 All six demo accounts use password **`password`**:
@@ -93,7 +104,7 @@ Use separate browser profiles or a private window for different roles. Begin wit
 
 The database starts empty except for migrations, demo accounts, and program choices. Bring your own dummy test documents. Do not upload real student records to GitHub.
 
-Google sign-in needs your own authorized Google OAuth credentials and the exact callback `http://127.0.0.1:8001/auth/google/callback`. It is optional for local demo testing. School eligibility checks require the authorized school portal connection; demo login does not supply that connection. Comprehensive Exam submission may therefore be blocked by the eligibility check. Email is logged locally instead of delivered to Gmail by default.
+Google sign-in needs your own authorized Google OAuth credentials and the exact callback `http://127.0.0.1:8001/auth/google/callback`. It is optional for local demo testing. The local demo student account is eligible to submit Comprehensive Exam applications; non-demo student accounts still require an authorized school portal connection and verified eligibility. Email is logged locally instead of delivered to Gmail by default.
 
 See [integration details and limitations](integration-setup.md) and [implemented improvements](implemented-improvements-2026-10-24.md) for the workflows and remaining client decisions. This is a testing project, not a production deployment.
 

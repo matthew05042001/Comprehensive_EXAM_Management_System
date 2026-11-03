@@ -60,6 +60,7 @@ class HandleInertiaRequests extends Middleware
             'role' => $u->role,
             'school_id' => $u->school_id ?? '',
             'program' => $u->program ?? '',
+            'is_demo_account' => (bool) $u->is_demo_account,
         ] : null;
 
         return array_merge(parent::share($request), [

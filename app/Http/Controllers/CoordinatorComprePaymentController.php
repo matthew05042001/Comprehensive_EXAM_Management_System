@@ -13,11 +13,16 @@ class CoordinatorComprePaymentController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        if (method_exists($user, 'isCoordinator') && ! $user->isCoordinator()) {
+        $canViewComprehensivePayments = $user?->isRole('Administrative Assistant')
+            || $user?->isRole('Dean')
+            || (method_exists($user, 'isCoordinator') && $user->isCoordinator());
+        if (! $canViewComprehensivePayments) {
             abort(403, 'Only coordinators can access this page.');
         }
 
-        $programs = method_exists($user, 'allowedProgramNames') ? $user->allowedProgramNames() : [];
+        $programs = $user->isRole('Administrative Assistant') || $user->isRole('Dean')
+            ? DB::table('exam_application')->distinct()->pluck('program')->filter()->values()->all()
+            : (method_exists($user, 'allowedProgramNames') ? $user->allowedProgramNames() : []);
         if (empty($programs)) {
             return Inertia::render('coordinator/compre-payment/Index', [
                 'programs' => [],
@@ -130,7 +135,7 @@ class CoordinatorComprePaymentController extends Controller
     public function approve(Request $request, int $id): RedirectResponse
     {
         $user = $request->user();
-        if (method_exists($user, 'isCoordinator') && ! $user->isCoordinator()) {
+        if (! in_array($user?->role, ['Coordinator', 'Dean'], true)) {
             abort(403, 'Only coordinators can approve.');
         }
 
@@ -139,8 +144,11 @@ class CoordinatorComprePaymentController extends Controller
         }
 
         // Limit to students within coordinator programs
-        $programs = method_exists($user, 'allowedProgramNames')
-            ? $user->allowedProgramNames() : array_filter([$user->program]);
+        $programs = $user->role === 'Dean'
+            ? DB::table('exam_application')->distinct()->pluck('program')->filter()->values()->all()
+            : (method_exists($user, 'allowedProgramNames')
+                ? $user->allowedProgramNames()
+                : array_filter([$user->program]));
 
         $row = DB::table('payment_submissions as p')
             ->leftJoin('users as u', 'u.id', '=', 'p.student_id')
@@ -169,7 +177,7 @@ class CoordinatorComprePaymentController extends Controller
     public function reject(Request $request, int $id): RedirectResponse
     {
         $user = $request->user();
-        if (method_exists($user, 'isCoordinator') && ! $user->isCoordinator()) {
+        if (! in_array($user?->role, ['Coordinator', 'Dean'], true)) {
             abort(403, 'Only coordinators can reject.');
         }
 
@@ -181,8 +189,11 @@ class CoordinatorComprePaymentController extends Controller
             return back()->withErrors(['status' => 'Payments table not found.']);
         }
 
-        $programs = method_exists($user, 'allowedProgramNames')
-            ? $user->allowedProgramNames() : array_filter([$user->program]);
+        $programs = $user->role === 'Dean'
+            ? DB::table('exam_application')->distinct()->pluck('program')->filter()->values()->all()
+            : (method_exists($user, 'allowedProgramNames')
+                ? $user->allowedProgramNames()
+                : array_filter([$user->program]));
 
         $row = DB::table('payment_submissions as p')
             ->leftJoin('users as u', 'u.id', '=', 'p.student_id')

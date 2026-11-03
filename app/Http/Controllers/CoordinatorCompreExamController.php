@@ -13,11 +13,16 @@ class CoordinatorCompreExamController extends Controller
     {
         $user = $request->user();
 
-        if (method_exists($user, 'isCoordinator') && ! $user->isCoordinator()) {
+        $canViewComprehensiveExam = $user?->isRole('Administrative Assistant')
+            || $user?->isRole('Dean')
+            || (method_exists($user, 'isCoordinator') && $user->isCoordinator());
+        if (! $canViewComprehensiveExam) {
             abort(403, 'Only coordinators can access this page.');
         }
 
-        $programs = method_exists($user, 'allowedProgramNames') ? $user->allowedProgramNames() : [];
+        $programs = $user->isRole('Administrative Assistant') || $user->isRole('Dean')
+            ? DB::table('exam_application')->distinct()->pluck('program')->filter()->values()->all()
+            : (method_exists($user, 'allowedProgramNames') ? $user->allowedProgramNames() : []);
 
         if (empty($programs)) {
             return Inertia::render('coordinator/compre-exam/Index', [
@@ -108,6 +113,7 @@ class CoordinatorCompreExamController extends Controller
             'counts' => ['eligible' => $eligible->count(), 'notEligible' => $notEligible->count()],
         ]);
     }
+
 
     // Simulation-friendly eligibility (set COMPRE_BYPASS_RULES=true in .env for local dev)
     protected function computeEligibility($studentId): array

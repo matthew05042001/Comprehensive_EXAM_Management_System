@@ -16,7 +16,9 @@ beforeEach(function () {
         $t->id();
         foreach (['first_name', 'last_name', 'school_id', 'role', 'email', 'program'] as $f) {
             $t->string($f)->nullable();
-        }$t->timestamp('email_verified_at')->nullable();
+        }
+        $t->boolean('is_demo_account')->default(false);
+        $t->timestamp('email_verified_at')->nullable();
         $t->timestamps();
     });
     Schema::create('advisers', function (Blueprint $t) {
@@ -59,6 +61,22 @@ it('persists an exam application and its subject schedule using the migrated sch
     expect(DB::table('exam_application')->count())->toBe(1)->and(DB::table('exam_application')->value('student_id'))->toBe('COMPRE-1')->and(DB::table('exam_application_subject')->value('exam_date'))->toBe('2026-11-20');
     $this->get('/comprehensive-exam')->assertOk()->assertInertia(fn (Assert $p) => $p->component('student/submissions/comprehensive-exam/Index')->where('application.subjects.0.subject', 'Research Methods'));
 });
+it('saves an incomplete application and displays missing values', function () {
+    $this->actingAs(User::find(1))
+        ->post('/comprehensive-exam', [
+            'schoolYear' => '',
+            'program' => '',
+            'officeAddress' => '',
+            'mobileNo' => '',
+            'telephoneNo' => '',
+            'subjects' => [['subject' => '', 'date' => '', 'startTime' => '', 'endTime' => '']],
+        ])
+        ->assertRedirect('/comprehensive-exam');
+
+    expect(DB::table('exam_application')->count())->toBe(1)
+        ->and(DB::table('exam_application')->value('school_year'))->toBeNull()
+        ->and(DB::table('exam_application_subject')->count())->toBe(1);
+});
 it('does not duplicate an exam application or subjects in the same school year', function () {
     $this->actingAs(User::find(1));
     $this->post('/comprehensive-exam', integratedExamData());
@@ -78,6 +96,14 @@ it('shows only the authenticated students application', function () {
 it('does not claim verified eligibility without a school portal session', function () {
     $this->actingAs(User::find(1))->getJson('/api/comprehensive-exam/eligibility')->assertOk()->assertJson(['eligible' => false, 'error' => 'Legacy session not available']);
     Http::assertNothingSent();
+});
+it('allows the local demo student to submit without a school portal session', function () {
+    User::find(1)->forceFill(['is_demo_account' => true])->save();
+
+    $this->actingAs(User::find(1))
+        ->getJson('/api/comprehensive-exam/eligibility')
+        ->assertOk()
+        ->assertJson(['eligible' => true]);
 });
 it('does not allow Finance to submit a student exam application', function () {
     $this->actingAs(User::find(3))->postJson('/comprehensive-exam', integratedExamData())->assertForbidden();
