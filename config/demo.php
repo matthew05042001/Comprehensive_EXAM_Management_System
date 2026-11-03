@@ -8,5 +8,6 @@ return [
         'acadcoor@uic.edu.ph' => ['role' => 'Coordinator', 'first_name' => 'Demo', 'last_name' => 'Coordinator', 'school_id' => 'DEMO-COORDINATOR'],
         'aa@uic.edu.ph' => ['role' => 'Administrative Assistant', 'first_name' => 'Demo', 'last_name' => 'Assistant', 'school_id' => 'DEMO-AA'],
         'dean@uic.edu.ph' => ['role' => 'Dean', 'first_name' => 'Demo', 'last_name' => 'Dean', 'school_id' => 'DEMO-DEAN'],
+        'register@uic.edu.ph' => ['role' => 'Register', 'first_name' => 'Register', 'last_name' => 'Demo', 'school_id' => 'REGISTER-DEMO-001'],
     ],
 ];

@@ -125,6 +125,8 @@ const deanNavItems: MainNavItem[] = [
     { title: 'Document Templates', href: '/settings/documents', icon: FileText },
 ];
 
+const registerNavItems: MainNavItem[] = [{ title: 'Dashboard', href: '/dashboard', icon: LayoutGrid }];
+
 export function AppSidebar() {
     const {
         auth: { user, is_adviser },
@@ -142,6 +144,8 @@ export function AppSidebar() {
         navItems = assistantNavItems;
     } else if (user.role === 'Adviser') {
         navItems = adviserNavItems;
+    } else if (user.role === 'Register') {
+        navItems = registerNavItems;
     } else if (['Finance', 'Finance Office', 'Finance Officer'].includes(user.role)) {
         navItems = [{ title: 'Dashboard', href: '/dashboard', icon: LayoutGrid }];
     } else {
