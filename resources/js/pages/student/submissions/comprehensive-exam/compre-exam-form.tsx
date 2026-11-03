@@ -27,6 +27,9 @@ export default function CompreExamForm({ open, onOpenChange, onFinish }: Props) 
 
     const { data, setData, post, processing, reset, errors, clearErrors } = useForm<{
         schoolYear: string;
+        firstName: string;
+        middleName: string;
+        lastName: string;
         program: string;
         officeAddress: string;
         mobileNo: string;
@@ -34,6 +37,9 @@ export default function CompreExamForm({ open, onOpenChange, onFinish }: Props) 
         subjects: Subject[];
     }>({
         schoolYear: '',
+        firstName: user.first_name || '',
+        middleName: user.middle_name || '',
+        lastName: user.last_name || '',
         program: user.program || '',
         officeAddress: '',
         mobileNo: String(user.mobile_no || user.contact_number || ''),
@@ -115,31 +121,15 @@ export default function CompreExamForm({ open, onOpenChange, onFinish }: Props) 
                     <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                         <div>
                             <Label className="text-s">First Name</Label>
-                            <Input
-                                className="text-s text-foreground disabled:bg-muted disabled:text-foreground h-10 disabled:opacity-100"
-                                value={user.first_name || ''} // changed
-                                readOnly
-                                disabled
-                            />
+                            <Input className="text-s h-10" value={data.firstName} onChange={(e) => setData('firstName', e.target.value)} />
                         </div>
                         <div>
                             <Label className="text-s">Middle Initial</Label>
-                            <Input
-                                className="text-s text-foreground disabled:bg-muted disabled:text-foreground h-10 disabled:opacity-100"
-                                maxLength={3}
-                                value={user.middle_name?.[0] ?? ''} // changed
-                                readOnly
-                                disabled
-                            />
+                            <Input className="text-s h-10" value={data.middleName} onChange={(e) => setData('middleName', e.target.value)} />
                         </div>
                         <div>
                             <Label className="text-s">Last Name</Label>
-                            <Input
-                                className="text-s text-foreground disabled:bg-muted disabled:text-foreground h-10 disabled:opacity-100"
-                                value={user.last_name || ''} // changed
-                                readOnly
-                                disabled
-                            />
+                            <Input className="text-s h-10" value={data.lastName} onChange={(e) => setData('lastName', e.target.value)} />
                         </div>
                         <div>
                             <Label className="text-s">School Year</Label>
@@ -160,12 +150,7 @@ export default function CompreExamForm({ open, onOpenChange, onFinish }: Props) 
                         </div>
                         <div>
                             <Label className="text-s">Program</Label>
-                            <Input
-                                className="text-s text-foreground disabled:bg-muted disabled:text-foreground h-10 w-105 disabled:opacity-100"
-                                value={data.program}
-                                readOnly
-                                disabled
-                            />
+                            <Input className="text-s h-10 w-105" value={data.program} onChange={(e) => setData('program', e.target.value)} />
                         </div>
                     </div>
                 </>

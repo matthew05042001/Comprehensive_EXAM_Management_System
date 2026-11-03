@@ -3,6 +3,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { format, formatDistanceToNow } from 'date-fns';
+import { router } from '@inertiajs/react';
 import { BadgeCheck, BookOpen, ChevronDown, Hourglass, XCircle } from 'lucide-react';
 import { useState } from 'react';
 
@@ -27,6 +28,8 @@ export type ExamApplicationFull = {
     status?: string; // pending|approved|rejected|...
     subjects?: ExamSubject[];
     created_at?: string | null;
+    cancelable?: boolean;
+    applicationId?: number;
 };
 
 type Props = {
@@ -74,6 +77,11 @@ export default function DisplayApplication({ application }: Props) {
 
     const createdAt = parseServerDate(application.created_at);
     const submittedWhen = createdAt ? `Submitted ${formatDistanceToNow(createdAt, { addSuffix: true })}` : '';
+
+    function cancelApplication() {
+        if (!application.applicationId || !window.confirm('Cancel this pending application?')) return;
+        router.delete(route('comprehensive-exam.cancel', application.applicationId), { preserveScroll: true });
+    }
 
     return (
         <div className="w-full">
@@ -146,6 +154,13 @@ export default function DisplayApplication({ application }: Props) {
                                 <div>
                                     <span className="font-medium">Office Address:</span> {application.office_address || '—'}
                                 </div>
+                                {application.cancelable && (
+                                    <div className="mt-4 border-t pt-4">
+                                        <button type="button" onClick={cancelApplication} className="rounded-md border border-red-300 px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-50">
+                                            Cancel application
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         </div>
 

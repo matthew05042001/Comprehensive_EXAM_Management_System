@@ -93,6 +93,7 @@ const assistantNavItems: MainNavItem[] = [
         subItems: [
             { title: 'Comprehensive Exams', href: '/coordinator/compre-exam' },
             { title: 'Payment Receipt', href: '/coordinator/compre-payment' },
+            { title: 'Forms', href: '/assistant/forms' },
         ],
     },
     { title: 'Honorarium Summary', href: '/honorarium-summary', icon: DollarSign },

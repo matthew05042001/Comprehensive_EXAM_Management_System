@@ -8,6 +8,7 @@ use App\Http\Controllers\CoordinatorAdviserController;
 use App\Http\Controllers\CoordinatorCompreExamController;
 use App\Http\Controllers\CoordinatorComprePaymentController;
 use App\Http\Controllers\CoordinatorCompreScheduleController;
+use App\Http\Controllers\AssistantFormsController;
 use App\Http\Controllers\CoordinatorDefenseController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DefenseRequestController;
@@ -316,12 +317,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
     /* Comprehensive Exam (student) */
     Route::get('/comprehensive-exam', [ComprehensiveExamController::class, 'index'])->name('comprehensive-exam.index');
     Route::post('/comprehensive-exam', [ComprehensiveExamController::class, 'store'])->name('comprehensive-exam.store');
+    Route::delete('/comprehensive-exam/{examApplication}', [ComprehensiveExamController::class, 'cancel'])
+        ->name('comprehensive-exam.cancel');
 
     /* Coordinator Comprehensive Exam */
     Route::get('/coordinator/compre-exam', [CoordinatorCompreExamController::class, 'index'])
         ->name('coordinator.compre-exam.index');
     Route::get('/coordinator/compre-payment', [CoordinatorComprePaymentController::class, 'index'])
         ->name('coordinator.compre-payment.index');
+    Route::get('/assistant/forms', [AssistantFormsController::class, 'index'])
+        ->name('assistant.forms.index');
+    Route::post('/assistant/forms', [AssistantFormsController::class, 'store'])
+        ->name('assistant.forms.store');
+    Route::patch('/assistant/forms/{form}/evaluation', [AssistantFormsController::class, 'updateEvaluation'])
+        ->name('assistant.forms.evaluation');
+    Route::put('/assistant/forms/{form}', [AssistantFormsController::class, 'update'])
+        ->name('assistant.forms.update');
     Route::get('/coordinator/compre-schedule', [CoordinatorCompreScheduleController::class, 'index'])
         ->name('coordinator.compre-schedule.index');
     Route::post('/coordinator/compre-schedule', [CoordinatorCompreScheduleController::class, 'store'])

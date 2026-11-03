@@ -19,6 +19,11 @@ export type CompreExamApplicationSummary = {
     submitted_at: string | null;
     application_status: 'approved' | 'pending' | 'rejected' | 'not_yet_applied';
     permit_status: 'approved' | 'pending' | 'rejected' | null;
+    school_year?: string | null;
+    contact_number?: string | null;
+    telephone_number?: string | null;
+    office_address?: string | null;
+    subjects: { subject: string | null; date: string | null; startTime: string | null; endTime: string | null }[];
 };
 
 type PageProps = {

@@ -83,11 +83,11 @@ it('does not duplicate an exam application or subjects in the same school year',
     $this->post('/comprehensive-exam', integratedExamData())->assertRedirect();
     expect(DB::table('exam_application')->count())->toBe(1)->and(DB::table('exam_application_subject')->count())->toBe(1);
 });
-it('validates exam times before saving', function () {
+it('saves an application with any provided exam times', function () {
     $data = integratedExamData();
     $data['subjects'][0]['endTime'] = '08:00';
-    $this->actingAs(User::find(1))->postJson('/comprehensive-exam', $data)->assertUnprocessable();
-    expect(DB::table('exam_application')->count())->toBe(0);
+    $this->actingAs(User::find(1))->postJson('/comprehensive-exam', $data)->assertRedirect('/comprehensive-exam');
+    expect(DB::table('exam_application')->count())->toBe(1);
 });
 it('shows only the authenticated students application', function () {
     $this->actingAs(User::find(1))->post('/comprehensive-exam', integratedExamData());

@@ -17,6 +17,9 @@ class ExamApplication extends Model
 
     protected $fillable = [
         'student_id',
+        'first_name',
+        'middle_name',
+        'last_name',
         'school_year',
         'permit_status',
         'permit_DATE',

@@ -33,6 +33,7 @@ class ComprehensiveExamController extends Controller
         // STUDENT VIEW
         $application = ExamApplication::with('subjects')
             ->where('student_id', $studentId)
+            ->whereNotIn('final_approval_status', ['cancelled', 'canceled'])
             ->latest('created_at')
             ->first();
 
@@ -56,9 +57,9 @@ class ComprehensiveExamController extends Controller
                     'endTime' => $s->end_time,
                 ]),
                 // personal info from users table
-                'first_name' => $user->first_name ?? '',
-                'middle_name' => $user->middle_name ?? null,
-                'last_name' => $user->last_name ?? '',
+                'first_name' => $application->getAttribute('first_name') ?? $user->first_name ?? '',
+                'middle_name' => $application->getAttribute('middle_name') ?? $user->middle_name ?? null,
+                'last_name' => $application->getAttribute('last_name') ?? $user->last_name ?? '',
                 'email' => $user->email ?? '',
                 'student_id' => $studentId,
             ];
@@ -76,6 +77,9 @@ class ComprehensiveExamController extends Controller
         abort_unless($request->user()?->role === 'Student', 403);
         $validated = $request->validate([
             'schoolYear' => ['nullable', 'string', 'max:20'],
+            'firstName' => ['nullable', 'string', 'max:100'],
+            'middleName' => ['nullable', 'string', 'max:100'],
+            'lastName' => ['nullable', 'string', 'max:100'],
             'program' => ['nullable', 'string', 'max:255'],
             'officeAddress' => ['nullable', 'string', 'max:255'],
             'mobileNo' => ['nullable', 'string', 'max:50'],
@@ -84,7 +88,7 @@ class ComprehensiveExamController extends Controller
             'subjects.*.subject' => ['nullable', 'string', 'max:255'],
             'subjects.*.date' => ['nullable', 'date'],
             'subjects.*.startTime' => ['nullable', 'date_format:H:i'],
-            'subjects.*.endTime' => ['nullable', 'date_format:H:i', 'after:subjects.*.startTime'],
+            'subjects.*.endTime' => ['nullable', 'date_format:H:i'],
         ]);
 
         $user = $request->user();
@@ -94,7 +98,10 @@ class ComprehensiveExamController extends Controller
         }
 
         if ($validated['schoolYear'] !== null
-            && ExamApplication::where('student_id', $studentId)->where('school_year', $validated['schoolYear'])->exists()) {
+            && ExamApplication::where('student_id', $studentId)
+                ->where('school_year', $validated['schoolYear'])
+                ->whereNotIn('final_approval_status', ['cancelled', 'canceled'])
+                ->exists()) {
             return to_route('comprehensive-exam.index')->with('info', 'You already have an application for this school year.');
         }
         $eligibility = app(\App\Services\ComprehensiveEligibilityService::class)->check($request);
@@ -104,16 +111,24 @@ class ComprehensiveExamController extends Controller
 
         return DB::transaction(function () use ($studentId, $validated) {
             // Enforce one application per student per school year
+            $applicationData = [
+                'first_name' => $validated['firstName'] ?? null,
+                'middle_name' => $validated['middleName'] ?? null,
+                'last_name' => $validated['lastName'] ?? null,
+                'permit_status' => 'pending',
+                'final_approval_status' => 'pending',
+                'contact_number' => $validated['mobileNo'] ?? null,
+                'telephone_number' => $validated['telephoneNo'] ?? null,
+                'office_address' => $validated['officeAddress'] ?? null,
+                'program' => $validated['program'] ?? '',
+            ];
+            if (! \Schema::hasColumn('exam_application', 'first_name')) {
+                unset($applicationData['first_name'], $applicationData['middle_name'], $applicationData['last_name']);
+            }
+
             $application = ExamApplication::firstOrCreate(
                 ['student_id' => $studentId, 'school_year' => $validated['schoolYear']],
-                [
-                    'permit_status' => 'pending',
-                    'final_approval_status' => 'pending',
-                    'contact_number' => $validated['mobileNo'],
-                    'telephone_number' => $validated['telephoneNo'] ?? null,
-                    'office_address' => $validated['officeAddress'] ?? null,
-                    'program' => $validated['program'] ?? '',
-                ]
+                $applicationData
             );
 
             // Only create subjects if this is a new application
@@ -133,5 +148,15 @@ class ComprehensiveExamController extends Controller
 
             return to_route('comprehensive-exam.index')->with('success', 'Application submitted.');
         });
+    }
+
+    public function cancel(Request $request, ExamApplication $examApplication)
+    {
+        abort_unless($examApplication->student_id === ($request->user()->student_id ?? $request->user()->school_id ?? $request->user()->id), 403);
+        abort_unless(strtolower((string) $examApplication->final_approval_status) === 'pending', 422, 'Only pending applications can be cancelled.');
+
+        $examApplication->update(['final_approval_status' => 'cancelled']);
+
+        return to_route('comprehensive-exam.index')->with('success', 'Application cancelled.');
     }
 }

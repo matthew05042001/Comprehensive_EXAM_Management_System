@@ -23,6 +23,7 @@ export default function Details({ application }: { application: CompreExamApplic
         );
     };
 
+
     const permitBadge = (v: CompreExamApplicationSummary['permit_status']) => {
         if (!v)
             return (
@@ -81,6 +82,12 @@ export default function Details({ application }: { application: CompreExamApplic
                             <GraduationCap className="text-muted-foreground h-4 w-4" />
                             <span className="text-foreground">{application.program || '—'}</span>
                         </div>
+                        <div className="mt-2 space-y-1 text-xs">
+                            <div><strong>School year:</strong> {application.school_year || '—'}</div>
+                            <div><strong>Mobile:</strong> {application.contact_number || '—'}</div>
+                            <div><strong>Telephone:</strong> {application.telephone_number || '—'}</div>
+                            <div><strong>Office address:</strong> {application.office_address || '—'}</div>
+                        </div>
 
                         <div className="mt-2 flex flex-wrap items-center gap-2">
                             {/* Eligibility */}
@@ -132,6 +139,25 @@ export default function Details({ application }: { application: CompreExamApplic
                     </div>
                 )}
             </div>
+
+            <div className="mt-4">
+                <div className="text-muted-foreground mb-2 text-xs tracking-wide uppercase">Submitted subjects and schedule</div>
+                {application.subjects.length === 0 ? (
+                    <div className="text-sm">No subject data provided.</div>
+                ) : (
+                    <div className="space-y-2">
+                        {application.subjects.map((subject, index) => (
+                            <div key={index} className="rounded border p-2 text-sm">
+                                <div className="font-medium">{subject.subject || '—'}</div>
+                                <div className="text-muted-foreground text-xs">
+                                    Date: {subject.date || '—'} · Time: {subject.startTime || '—'} - {subject.endTime || '—'}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+
         </div>
     );
 }

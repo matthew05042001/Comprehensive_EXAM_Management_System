@@ -249,6 +249,7 @@ export default function ComprehensiveExamIndex() {
                                 <DisplayApplication
                                     application={{
                                         id: application.application_id,
+                                        applicationId: application.application_id,
                                         first_name: application.first_name,
                                         middle_initial: application.middle_name ? application.middle_name[0] : null,
                                         last_name: application.last_name,
@@ -259,6 +260,7 @@ export default function ComprehensiveExamIndex() {
                                         telephone_no: application.telephone_number ?? null,
                                         email: application.email,
                                         status: application.final_approval_status || 'Pending',
+                                        cancelable: application.final_approval_status?.toLowerCase() === 'pending',
                                         subjects: application.subjects,
                                         created_at: application.created_at ?? null,
                                     }}

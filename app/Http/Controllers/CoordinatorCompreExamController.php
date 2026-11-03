@@ -82,14 +82,34 @@ class CoordinatorCompreExamController extends Controller
 
             $elig = $this->computeEligibility($sid);
 
+            if (! $latest) {
+                return null;
+            }
+
+            $subjects = DB::table('exam_application_subject')
+                ->where('application_id', $latest->application_id)
+                ->orderBy('id')
+                ->get(['subject_name', 'exam_date', 'start_time', 'end_time'])
+                ->map(fn ($subject) => [
+                    'subject' => $subject->subject_name,
+                    'date' => $subject->exam_date,
+                    'startTime' => $subject->start_time,
+                    'endTime' => $subject->end_time,
+                ])->values()->all();
+
             return [
                 'id' => (int) $s->id,
-                'first_name' => $s->first_name ?? '',
-                'middle_name' => $s->middle_name ?? null,
-                'last_name' => $s->last_name ?? '',
+                'first_name' => $latest->first_name ?? $s->first_name ?? '',
+                'middle_name' => $latest->middle_name ?? $s->middle_name ?? null,
+                'last_name' => $latest->last_name ?? $s->last_name ?? '',
                 'email' => $s->email ?? null,
                 'school_id' => $s->school_id ?? null,
-                'program' => $s->program ?? null,
+                'program' => $latest->program ?? $s->program ?? null,
+                'school_year' => $latest->school_year,
+                'contact_number' => $latest->contact_number,
+                'telephone_number' => $latest->telephone_number,
+                'office_address' => $latest->office_address,
+                'subjects' => $subjects,
 
                 'eligible' => $elig['eligible'],
                 'lacking' => $elig['lacking'],
@@ -101,7 +121,7 @@ class CoordinatorCompreExamController extends Controller
                     : 'not_yet_applied',
                 'permit_status' => $latest ? strtolower($latest->permit_status ?? 'pending') : null,
             ];
-        });
+        })->filter()->values();
 
         $eligible = $rows->where('eligible', true)->values();
         $notEligible = $rows->where('eligible', false)->values();
