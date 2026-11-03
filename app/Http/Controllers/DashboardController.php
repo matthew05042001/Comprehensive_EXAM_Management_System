@@ -224,6 +224,12 @@ class DashboardController extends Controller
             $props['coordinatorAssignments'] = $this->getCoordinatorAssignments();
         }
 
+        if ($effective === 'Register') {
+            $props['evaluationForms'] = DB::table('evaluation_forms')
+                ->orderByDesc('form_timestamp')
+                ->get();
+        }
+
         return Inertia::render('dashboard/Index', $props);
     }
 
