@@ -11,7 +11,7 @@ class CoordinatorCompreScheduleController extends Controller
 {
     private function authorizeStaff(Request $request): void
     {
-        abort_unless(in_array($request->user()?->role, ['Coordinator', 'Administrative Assistant', 'Dean'], true), 403);
+        abort_unless($request->user()?->role === 'Coordinator', 403);
     }
 
     public function index(Request $request)
