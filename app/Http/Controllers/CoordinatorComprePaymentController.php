@@ -135,8 +135,8 @@ class CoordinatorComprePaymentController extends Controller
     public function approve(Request $request, int $id): RedirectResponse
     {
         $user = $request->user();
-        if (! in_array($user?->role, ['Coordinator', 'Dean'], true)) {
-            abort(403, 'Only coordinators can approve.');
+        if (! in_array($user?->role, ['Coordinator', 'Administrative Assistant', 'Dean'], true)) {
+            abort(403, 'Only coordinators and administrative assistants can approve.');
         }
 
         if (! Schema::hasTable('payment_submissions')) {
@@ -177,8 +177,8 @@ class CoordinatorComprePaymentController extends Controller
     public function reject(Request $request, int $id): RedirectResponse
     {
         $user = $request->user();
-        if (! in_array($user?->role, ['Coordinator', 'Dean'], true)) {
-            abort(403, 'Only coordinators can reject.');
+        if (! in_array($user?->role, ['Coordinator', 'Administrative Assistant', 'Dean'], true)) {
+            abort(403, 'Only coordinators and administrative assistants can reject.');
         }
 
         $request->validate([
